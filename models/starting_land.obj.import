@@ -1,0 +1,19 @@
+[remap]
+
+importer="wavefront_obj"
+type="Mesh"
+path="res://.import/starting_land.obj-6596b2d82b264ba92b430e2331e36d19.mesh"
+
+[deps]
+
+files=[ "res://.import/starting_land.obj-6596b2d82b264ba92b430e2331e36d19.mesh" ]
+
+source_file="res://models/starting_land.obj"
+dest_files=[ "res://.import/starting_land.obj-6596b2d82b264ba92b430e2331e36d19.mesh", "res://.import/starting_land.obj-6596b2d82b264ba92b430e2331e36d19.mesh" ]
+
+[params]
+
+generate_tangents=true
+scale_mesh=Vector3( 1, 1, 1 )
+offset_mesh=Vector3( 0, 0, 0 )
+optimize_mesh=true
