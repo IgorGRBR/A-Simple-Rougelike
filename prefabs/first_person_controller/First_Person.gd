@@ -4,6 +4,7 @@ extends KinematicBody
 const GRAVITY = 9.8
 const WALL_ANGLE = deg2rad(45)
 const UP_VECTOR = Vector3(0, 1, 0)
+const MAX_SLIDES = 8
 
 #mouse sensitivity
 export(float,0.1,4.0) var sensitivity_x = 2
@@ -11,14 +12,15 @@ export(float,0.1,4.0) var sensitivity_y = 1.8
 
 #physics
 export(float, 10.0, 30.0) var speed = 7.0
-export(float, 0.01, 50.0) var acceleration = 50.0
+export(float, 0.01, 50.0) var acceleration = 15.0
 export(float,10.0, 50.0) var jump_height = 25
 export(float,1.0, 10.0) var mass = 8.0
 export(float,0.1, 3.0, 0.1) var gravity_scl = 1.0
 var stick_on_slopes = true
 var snap_vector = Vector3(0, -1, 0)
 var velocity = Vector3()
-var vertical_velocity = Vector3()
+var vertical_velocity = 0
+var gravity_normal = Vector3()
 
 #instances ref
 onready var player_cam = $Camera
@@ -43,16 +45,16 @@ func _process(delta):
 
 func _physics_process(delta):
 	#gravity
-	vertical_velocity = move_and_slide(
-		vertical_velocity, 
-#		snap_vector,
+	vertical_velocity = move_and_slide_with_snap(
+		gravity_normal * vertical_velocity, 
+		snap_vector,
 		UP_VECTOR,
 		stick_on_slopes,
-		4,
+		MAX_SLIDES,
 		WALL_ANGLE
-	)
-	vertical_velocity.x = 0
-	vertical_velocity.z = 0
+	).y
+#	vertical_velocity.x = 0
+#	vertical_velocity.z = 0
 	print("velocity:", vertical_velocity)
 	#print("vvelocity:", vertical_velocity)
 	
@@ -62,25 +64,26 @@ func _physics_process(delta):
 	#no walking on walls for you
 	var on_floor = is_on_floor()
 	if on_floor:
-		
+		gravity_normal = get_floor_normal()
 		#jump
-		if Input.is_action_just_pressed("space"):
-			vertical_velocity.y = jump_height
+		if Input.is_action_pressed("space"):
+			vertical_velocity = jump_height
 			snap_vector.y = 0
 		else:
 			snap_vector.y = -1
 	else:
-		vertical_velocity.y -= GRAVITY * gravity_scl * mass * delta
+		vertical_velocity -= GRAVITY * gravity_scl * mass * delta
+		gravity_normal = Vector3.UP
 		pass
 	
 	velocity = velocity.linear_interpolate(direction * speed, acceleration * delta)
 	velocity.y = 0
-	velocity = move_and_slide (
+	velocity = move_and_slide_with_snap (
 		velocity,
-#		snap_vector,
+		snap_vector,
 		UP_VECTOR,
 		stick_on_slopes,
-		4,
+		MAX_SLIDES,
 		WALL_ANGLE
 	)
 	pass
